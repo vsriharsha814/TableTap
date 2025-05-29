@@ -1,22 +1,18 @@
 # 📄 Project Overview: TableTap
 
 ## 🧩 Problem Statement  
-Insurance policy documents often contain **dense tables** listing critical coverage details—deductibles, exclusions, plan types, and limits. These documents are difficult for users (and even analysts) to read, interpret, and search through.  
+Insurance policy documents often include **complex tables** with essential information—like deductibles, copays, dental coverage, and plan totals. These tables are difficult to read, vary in structure, and make automated processing challenging.
 
-Manual extraction of this information is:  
-- Time-consuming  
-- Prone to human error  
-- Not scalable across thousands of documents
-
-There is a clear need for a tool that can automatically extract tabular data from PDFs and allow users to **ask natural-language questions** about the information contained within them.
+For analysts, underwriters, or app developers, there's a need for a **simple script-based tool** that can automatically extract key coverage values and present them in a human-readable format, without needing to manually inspect the PDF.
 
 ---
 
 ## 🎯 Goal  
-To build a lightweight, AI-powered application that:
-1. **Extracts tables** from insurance PDFs using OCR and layout-aware tools  
-2. **Transforms them into structured data**  
-3. **Enables users to ask questions** (e.g., “What is the deductible for Plan B?”) and get accurate, contextual answers
+To build a Python tool that:
+1. **Extracts tables** from insurance PDFs using layout-aware tools  
+2. **Automatically finds answers** to a set of **predefined, common questions** (e.g., deductible, total, dental coverage)  
+3. **Prints results in the terminal** in a clean, labeled format  
+4. Defaults to a test file (`test.pdf`), but allows the user to specify another file if desired
 
 ---
 
@@ -25,42 +21,55 @@ To build a lightweight, AI-powered application that:
 | Component           | Tool/Library                         | Purpose                             |
 |---------------------|--------------------------------------|-------------------------------------|
 | Table Extraction    | `Camelot` or `pdfplumber`            | Pull tables from PDFs into DataFrames  
-| QA Model            | `Hugging Face Tapas`                 | Answer questions from table data  
-| PDF Samples         | Insurance policy documents           | Realistic, complex documents for testing  
-| Interface (optional)| CLI or Streamlit                     | Interact with the system easily  
+| QA Model            | `Hugging Face Tapas`                 | Answer preset questions from table data  
 | Language            | Python                               | All processing and model code  
+| CLI Input           | `argparse` / `input()`               | Prompt for PDF path (optional)  
 
 ---
 
 ## 🧭 Approach
 
-### Step 1: PDF Table Extraction  
-Use Camelot (preferred for structured tables) to extract tabular data from PDFs. If Camelot fails on certain layouts, pdfplumber will be used as fallback.
+### Step 1: Table Extraction  
+Use Camelot (or pdfplumber) to extract tabular data from the given PDF file.
 
-### Step 2: Table Cleaning & Normalization  
-Convert extracted tables into Pandas DataFrames and clean them:
-- Fix headers, merge rows if split
-- Normalize numeric values (e.g., remove "$", "%", etc.)
+### Step 2: Default PDF Fallback  
+The script will try to run on `test.pdf` in the project root. If the user provides a file name/path via prompt, that file will be used instead.
 
-### Step 3: Question Answering  
-Use the `transformers` library to run a table-aware QA model (e.g., `google/tapas-large-finetuned-wtq`) on the cleaned DataFrame:
-- Input: user’s question (text)
-- Output: model-generated answer based on table data
+### Step 3: Predefined Questions  
+The script will run a fixed set of questions like:
+- "What is the deductible?"
+- "What is the total cost of the plan?"
+- "What is the dental coverage?"
 
-### Step 4: User Interaction  
-Simple CLI for now:
-- Show list of extracted tables
-- Let user select a table and ask questions
-- Print the answer
+Each question will be sent to the Tapas model, and the answer will be extracted.
 
-(Optional: A web app using Streamlit can be built later for better UX.)
+### Step 4: Result Display  
+Answers will be printed to the terminal in the format:
 
+```bash
+Deductible: $500
+Total Cost: $15,000
+Dental Coverage: Included
+
+No user interaction beyond choosing the file.
+```
 ---
 
 ## ✅ Deliverables
-- Python package with modular structure: `extractor.py`, `qa.py`, `main.py`
-- At least one working example with a sample insurance PDF
-- CLI that allows users to select a table and ask questions
+- A single command-line Python script (`main.py`) that runs end-to-end  
+- Test file: `test.pdf` placed in the root folder  
+- Table extraction, question answering, and formatted print output  
 - README and documentation
 
 ---
+
+## Example Output
+
+```bash
+$ python main.py
+No PDF file provided. Using default: test.pdf
+
+Deductible: $1,000  
+Total Cost: $12,500  
+Dental Coverage: Yes, up to $2,000/year 
+```
