@@ -50,9 +50,9 @@ Answers will be printed to the terminal in the format:
 Deductible: $500
 Total Cost: $15,000
 Dental Coverage: Included
+```
 
 No user interaction beyond choosing the file.
-```
 ---
 
 ## ✅ Deliverables
